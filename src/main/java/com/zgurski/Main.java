@@ -9,5 +9,6 @@ public class Main {
         System.out.println(RandomStringUtils.random(5,true,true));
         System.out.println(RandomStringUtils.random(30, "abc"));
         System.out.println(RandomStringUtils.random(35, "abc"));
+        System.out.println(RandomStringUtils.random(39, "abc"));
     }
 }
