@@ -1,0 +1,21 @@
+spring:
+
+  main:
+    allow-circular-references: true
+
+  datasource:
+    hikari:
+      jdbc-url: "jdbc:postgresql://localhost:5432/tableplan?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
+      maximum-pool-size: 20
+      driver-class-name: org.postgresql.Driver
+    username: dev
+    password: dev
+    url: "jdbc:postgresql://localhost:5432/tableplan?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
+    driver-class-name: org.postgresql.Driver
+
+  thymeleaf:
+    cache: true
+    check-template: true
+    check-template-location: true
+    enabled: true
+    encoding: UTF-8

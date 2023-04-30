@@ -8,4 +8,6 @@ public interface RestaurantRepository extends CRUDRepository <Long, Restaurant> 
 
     List<Restaurant> findAll();
     List<String> getRestaurantEmails();
+
+    boolean support(String param);
 }
