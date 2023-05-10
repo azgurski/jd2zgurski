@@ -1,0 +1,20 @@
+package com.azgurski.repository;
+
+import com.azgurski.domain.HibernateRestaurant;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface HibernateRestaurantRepository extends CRUDRepository<Long, HibernateRestaurant> {
+    List<HibernateRestaurant> searchRestaurant(String query, int postcode);
+
+    List<HibernateRestaurant> findAll();
+
+    Optional<HibernateRestaurant> findByEmail(String email);
+
+    HibernateRestaurant create(HibernateRestaurant object);
+
+    HibernateRestaurant update(HibernateRestaurant object);
+
+    HibernateRestaurant findOne(Long id);
+}

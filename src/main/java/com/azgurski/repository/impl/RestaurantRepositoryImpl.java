@@ -1,17 +1,23 @@
 package com.azgurski.repository.impl;
 
+import com.azgurski.domain.BillingData;
 import com.azgurski.domain.Restaurant;
 import com.azgurski.repository.RestaurantRepository;
 import com.azgurski.rowmapper.RestaurantRowMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityManagerFactory;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
@@ -23,6 +29,10 @@ public class RestaurantRepositoryImpl implements RestaurantRepository {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private final RestaurantRowMapper restaurantRowMapper;
+
+    private final SessionFactory sessionFactory;
+
+    private final EntityManagerFactory entityManagerFactory;
 
 
 //    private final DatabaseProperties properties;
@@ -173,5 +183,22 @@ public class RestaurantRepositoryImpl implements RestaurantRepository {
     @Override
     public boolean support(String param) {
         return param.equalsIgnoreCase("jdbc");
+    }
+
+    @Override
+    public List<BillingData> findAllBillingData(Long restaurant_id) {
+//        try (Session session = sessionFactory.openSession()) {
+//            Transaction transaction = session.getTransaction();
+//            transaction.begin();
+//
+//            Restaurant restaurant = session.get(Restaurant.class, restaurant_id);
+//            List<BillingData> billingData = restaurant.getBillingData();
+//            session.flush();
+//
+//            transaction.commit();
+//
+//            return billingData;
+//        }
+        return null;
     }
 }

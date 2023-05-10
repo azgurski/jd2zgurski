@@ -7,6 +7,7 @@ import com.azgurski.service.RestaurantServiceImpl;
 import com.azgurski.util.BillingDataValidator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,7 +22,7 @@ import javax.validation.Valid;
 
 @Controller
 @Data
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/billing_data")
 public class BillingDataController {
 

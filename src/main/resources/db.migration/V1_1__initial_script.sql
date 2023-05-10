@@ -1,0 +1,316 @@
+-- Select all tables in "tables" + SQL Scripts + Generate DDL to Clipboard
+--
+-- create table public.c_roles
+-- (
+--     role_id    bigint  default nextval('roles_role_id_seq'::regclass) not null
+--         constraint roles_pkey
+--             primary key
+--         constraint roles_role_id_key
+--             unique,
+--     name       varchar(20)                                            not null,
+--     category   bigint                                                 not null,
+--     created    timestamp(6)                                           not null,
+--     changed    timestamp(6),
+--     is_deleted boolean default false                                  not null
+-- );
+--
+-- alter table public.c_roles
+--     owner to dev;
+--
+-- create table public.restaurants
+-- (
+--     restaurant_id bigint  default nextval('restaurants_id_seq'::regclass) not null
+--         primary key
+--         constraint restaurants_id_key
+--             unique,
+--     name          varchar(50)                                             not null,
+--     email         varchar(100)                                            not null,
+--     phone         varchar(50)                                             not null,
+--     street_house  varchar(50)                                             not null,
+--     city          varchar(20)                                             not null,
+--     postcode      varchar(10)                                             not null,
+--     country       varchar(20)                                             not null,
+--     longitude     real,
+--     latitude      real,
+--     "image_URL"   varchar(500),
+--     created       timestamp(6)                                            not null,
+--     changed       timestamp(6)                                            not null,
+--     is_deleted    boolean default false                                   not null,
+--     role_id       bigint  default 1                                       not null
+--         constraint restaurants_c_roles_role_id_fk
+--             references public.c_roles,
+--     website       varchar(100)
+-- );
+--
+-- comment on table public.restaurants is 'users';
+--
+-- alter table public.restaurants
+--     owner to dev;
+--
+-- create index restaurants_city_index
+--     on public.restaurants (city);
+--
+-- create index restaurants_id_index
+--     on public.restaurants (restaurant_id);
+--
+-- create index restaurants_name_index
+--     on public.restaurants (name);
+--
+-- create index restaurants_longitude_latitude_index
+--     on public.restaurants (longitude, latitude);
+--
+-- create index restaurants_country_index
+--     on public.restaurants (country);
+--
+-- create index restaurants_phone_index_2
+--     on public.restaurants (phone);
+--
+-- create index restaurants_street_house_index
+--     on public.restaurants (street_house);
+--
+-- create index restaurants_phone_index
+--     on public.restaurants (email);
+--
+-- create index restaurants_postcode_index
+--     on public.restaurants (postcode);
+--
+-- create index roles_name_index
+--     on public.c_roles (name);
+--
+-- create table public.slots
+-- (
+--     slot_id        bigint  default nextval('slots_id_seq'::regclass) not null
+--         primary key
+--         constraint slots_id_key
+--             unique,
+--     restaurant_id  bigint                                            not null
+--         constraint slots_restaurants_restaurant_id_fk
+--             references public.restaurants,
+--     day_calendar   date                                              not null,
+--     is_available   boolean default false                             not null,
+--     created        timestamp(6)                                      not null,
+--     changed        timestamp(6)                                      not null,
+--     is_deleted     boolean default false                             not null,
+--     reservation_id bigint
+--         unique,
+--     time_slot      time
+-- );
+--
+-- alter table public.slots
+--     owner to dev;
+--
+-- create index slots_restaurant_id_day_is_available_index
+--     on public.slots (restaurant_id asc, day_calendar desc, is_available asc);
+--
+-- create table public.subscriptions
+-- (
+--     subscription_id   bigserial
+--         primary key
+--         unique,
+--     restaurant_id     bigint                not null
+--         constraint subscriptions_restaurants_restaurant_id_fk
+--             references public.restaurants,
+--     is_paid           boolean default false not null,
+--     days_quantity     bigint  default 30    not null,
+--     next_payment_date timestamp(6)          not null,
+--     created           timestamp(6)          not null,
+--     changed           timestamp(6)          not null,
+--     is_deleted        boolean default false not null,
+--     role_id           bigint                not null
+--         constraint subscriptions_roles_role_id_fk
+--             references public.c_roles
+-- );
+--
+-- alter table public.subscriptions
+--     owner to dev;
+--
+-- create index subscriptions_is_paid_index
+--     on public.subscriptions (is_paid);
+--
+-- create index subscriptions_next_payment_index
+--     on public.subscriptions (next_payment_date);
+--
+-- create index subscriptions_restaurant_id_is_paid_index
+--     on public.subscriptions (restaurant_id, is_paid);
+--
+-- create index subscriptions_days_quantity_index
+--     on public.subscriptions (days_quantity desc);
+--
+-- create table public.billing_data
+-- (
+--     billing_data_id bigserial
+--         primary key
+--         unique,
+--     restaurant_id   bigint                not null
+--         constraint billing_data_restaurants_restaurant_id_fk
+--             references public.restaurants,
+--     iban            varchar(27)           not null,
+--     bic             varchar(8)            not null,
+--     created         timestamp(6)          not null,
+--     changed         timestamp(6)          not null,
+--     is_deleted      boolean default false not null,
+--     role_id         bigint                not null
+--         constraint billing_data_roles_role_id_fk
+--             references public.c_roles
+-- );
+--
+-- alter table public.billing_data
+--     owner to dev;
+--
+-- create index billing_data_bic_index
+--     on public.billing_data (bic);
+--
+-- create index billing_data_iban_index
+--     on public.billing_data (iban);
+--
+-- create index billing_data_restaurant_id_index
+--     on public.billing_data (restaurant_id);
+--
+-- create table public.tables
+-- (
+--     id            bigserial
+--         unique,
+--     restaurant_id bigint                not null
+--         constraint tables_restaurants_restaurant_id_fk
+--             references public.restaurants,
+--     table_number  bigint                not null,
+--     capacity      bigint                not null,
+--     placement     varchar(10),
+--     created       timestamp(6)          not null,
+--     changed       timestamp(6)          not null,
+--     is_deleted    boolean default false not null
+-- );
+--
+-- alter table public.tables
+--     owner to dev;
+--
+-- create table public.reservations
+-- (
+--     reservation_id       bigint  default nextval('guests_id_seq'::regclass) not null
+--         constraint guests_pkey
+--             primary key
+--         constraint guests_id_key
+--             unique,
+--     restaurant_id        bigint                                             not null
+--         constraint reservations_restaurants_restaurant_id_fk
+--             references public.restaurants,
+--     day                  date                                               not null,
+--     time                 time                                               not null,
+--     guests_quantity      integer                                            not null,
+--     guest_name           varchar(50)                                        not null,
+--     guest_surname        varchar(100)                                       not null,
+--     guest_email          varchar(200)                                       not null,
+--     guest_phone          varchar(20)                                        not null,
+--     waiting_confirmation boolean default true                               not null,
+--     confirmed            boolean default false                              not null,
+--     created              timestamp(6)                                       not null,
+--     changed              timestamp(6)                                       not null,
+--     is_deleted           boolean default false                              not null,
+--     comments             varchar(300),
+--     table_number         bigint
+--         constraint reservations_tables_id_fk
+--             references public.tables (id)
+-- );
+--
+-- alter table public.reservations
+--     owner to dev;
+--
+-- create index reservations_confirmed_index
+--     on public.reservations (confirmed);
+--
+-- create index reservations_guest_name_guest_surname_guest_email_guest_phone_i
+--     on public.reservations (guest_name, guest_surname, guest_email, guest_phone);
+--
+-- create index reservations_restaurant_id_day_time_index
+--     on public.reservations (restaurant_id asc, day desc, time asc);
+--
+-- create index reservations_restaurant_id_index
+--     on public.reservations (restaurant_id);
+--
+-- create index reservations_waiting_confirmation_index
+--     on public.reservations (waiting_confirmation desc);
+--
+-- create index reservations_table_id_index
+--     on public.reservations (table_number);
+--
+-- create index reservations_restaurant_id_guests_quantity_index
+--     on public.reservations (restaurant_id asc, guests_quantity desc);
+--
+-- create index tables_capacity_index
+--     on public.tables (capacity);
+--
+-- create index tables_placement_index
+--     on public.tables (placement);
+--
+-- create index tables_restaurant_id_table_number_index
+--     on public.tables (restaurant_id, table_number);
+--
+-- create table public.c_times
+-- (
+--     time_id bigint not null
+--         primary key
+--         unique,
+--     time    time   not null
+-- );
+--
+-- comment on table public.c_times is 'hours, minutes';
+--
+-- alter table public.c_times
+--     owner to dev;
+--
+-- create index c_times_time_id_index
+--     on public.c_times (time_id);
+--
+-- create index c_times_time_index
+--     on public.c_times (time);
+--
+-- create table public.flyway_schema_history
+-- (
+--     installed_rank integer                 not null
+--         constraint flyway_schema_history_pk
+--             primary key,
+--     version        varchar(50),
+--     description    varchar(200)            not null,
+--     type           varchar(20)             not null,
+--     script         varchar(1000)           not null,
+--     checksum       integer,
+--     installed_by   varchar(100)            not null,
+--     installed_on   timestamp default now() not null,
+--     execution_time integer                 not null,
+--     success        boolean                 not null
+-- );
+--
+-- alter table public.flyway_schema_history
+--     owner to dev;
+--
+-- create index flyway_schema_history_s_idx
+--     on public.flyway_schema_history (success);
+--
+-- create table public.h_restaurants
+-- (
+--     restaurant_id      bigserial,
+--     name               varchar(50),
+--     email              varchar(100),
+--     phone              varchar(50),
+--     street_house       varchar(50),
+--     city               varchar(20),
+--     postcode           varchar(10),
+--     country            varchar(20),
+--     longitude          real,
+--     latitude           real,
+--     image_url          varchar(500),
+--     created            timestamp,
+--     changed            timestamp,
+--     is_deleted         boolean,
+--     role_id            bigint,
+--     website            varchar(100),
+--     email_user_auth    varchar(100) not null,
+--     password_user_auth varchar(100) not null,
+--     capacity           varchar(20)  not null
+-- );
+--
+-- comment on table public.h_restaurants is 'hibernate';
+--
+-- alter table public.h_restaurants
+--     owner to dev;
+--

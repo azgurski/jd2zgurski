@@ -1,5 +1,6 @@
 package com.azgurski;
 
+import com.azgurski.configuration.HibernateConfig;
 import com.azgurski.configuration.SpringConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,7 +12,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableWebMvc
 @Import(
-        SpringConfig.class
+        {SpringConfig.class,
+        HibernateConfig.class}
 )
 public class SpringBootApplicationStarter {
     public static void main(String[] args) {

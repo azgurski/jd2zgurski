@@ -8,6 +8,14 @@ import lombok.ToString;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Pattern;
@@ -17,12 +25,21 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 @Data
 @Builder
+@Entity
+@Table(name = "billing_data")
 public class BillingData {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long billing_data_id;
 
+
+//    @ManyToOne
+//    @JoinColumn(name = "restaurant_id")
+    @Column
     private Long restaurant_id;
 
+    @Column
     @Pattern(regexp = "^(?:(?:IT|SM)\\d{2}[A-Z]\\d{22}|CY\\d{2}[A-Z]\\d{23}|NL\\d{2}[A-Z]{4}\\d{10}|LV\\d{2}[A-Z]{4}" +
             "\\d{13}|(?:BG|BH|GB|IE)\\d{2}[A-Z]{4}\\d{14}|GI\\d{2}[A-Z]{4}\\d{15}|RO\\d{2}[A-Z]{4}\\d{16}|KW" +
             "\\d{2}[A-Z]{4}\\d{22}|MT\\d{2}[A-Z]{4}\\d{23}|NO\\d{13}|(?:DK|FI|GL|FO)\\d{16}|MK\\d{17}" +
@@ -31,16 +48,14 @@ public class BillingData {
             "(?:AZ|HU)\\d{27}|(?:GR|MU)\\d{28})$", message = "Enter the correct IBAN.")
     private String iban;
 
+    @Column
     @Pattern(regexp = "([a-zA-Z]{4})([a-zA-Z]{2})" +
             "(([2-9a-zA-Z]{1})([0-9a-np-zA-NP-Z]{1}))" +
             "((([0-9a-wy-zA-WY-Z]{1})" +
             "([0-9a-zA-Z]{2}))|([xX]{3})|)", message = "Enter the correct BIC code.")
     private String bic;
 
-    //@NotEmpty(message = "Email should be not empty.")
-    //@Email(message = "Email should be valid.")
-    //private String email;
-
+    @Column
     @Max(value = 3, message = "Role id must be not greater than 3")
     private Long role_id;
 

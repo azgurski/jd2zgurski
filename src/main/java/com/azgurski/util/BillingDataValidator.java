@@ -37,9 +37,16 @@ public class BillingDataValidator implements Validator {
 //        }
         if (billingData.getRestaurant_id() == null) {
             errors.rejectValue("restaurant_id", "", "Restaurant id should not be empty.");
-        } else if (restaurantRepository.findOne(billingData.getRestaurant_id()) == null) {
-            errors.rejectValue("restaurant_id", "", "Restaurant id should be present in database.");
         }
+//        else if (restaurantRepository.findOne(billingData.getRestaurant_id() == null) {
+//            errors.rejectValue("restaurant_id", "", "Restaurant id should be present in database.");
+//        }
+
+//        if (billingData.getRestaurant_id() == null) {
+//            errors.rejectValue("restaurant_id", "", "Restaurant id should not be empty.");
+//        } else if (restaurantRepository.findOne(billingData.getRestaurant_id()) == null) {
+//            errors.rejectValue("restaurant_id", "", "Restaurant id should be present in database.");
+//        }
 
         //TODO
         //валидация поля на BackEnd e на нетекстовый формат (exception convert String to Long)

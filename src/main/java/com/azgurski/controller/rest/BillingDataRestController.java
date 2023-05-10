@@ -12,11 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -44,8 +42,8 @@ public class BillingDataRestController {
         try {
             List<BillingData> billingDataList = billingDataService.findAll();
             return new ResponseEntity<>(billingDataList, HttpStatus.OK);
-        } catch (RuntimeException ex) {
-            throw new RuntimeException("Error! No billing data were found.");
+        } catch (EmptyResultDataAccessException ex) {
+            throw new BillingDataNotFoundException("Error! No billing data were found.");
         }
     }
 
