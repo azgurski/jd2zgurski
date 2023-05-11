@@ -8,6 +8,8 @@ import java.util.Optional;
 public interface HibernateRestaurantRepository extends CRUDRepository<Long, HibernateRestaurant> {
     List<HibernateRestaurant> searchRestaurant(String query, int postcode);
 
+    List<HibernateRestaurant> searchRestaurant(String searchQuery, String searchCountry);
+
     List<HibernateRestaurant> findAll();
 
     Optional<HibernateRestaurant> findByEmail(String email);

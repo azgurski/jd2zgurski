@@ -10,13 +10,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.Size;
+
 @Setter
 @Getter
 @RequiredArgsConstructor
 @AllArgsConstructor
-//@Validated
+@Validated
 public class HibernateRestaurantCreateRequest {
 
+    @Size(min = 2, max = 50, message = "Name must be between 2 and 50 symbols.")
     private String name;
 
     private String email;

@@ -9,6 +9,8 @@ import java.util.List;
 public interface HibernateRestaurantService {
     HibernateRestaurant findOne(Long id);
 
+    List<HibernateRestaurant> searchRestaurant(String searchQuery, String searchCountry);
+
     List<HibernateRestaurant> findAll();
 
     HibernateRestaurant create(HibernateRestaurant object);

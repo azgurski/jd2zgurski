@@ -62,7 +62,7 @@ public class HibernateSlot {
     @JsonIgnore
     private Timestamp changed;
 
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     @JsonIgnore
     private Boolean isDeleted;
 

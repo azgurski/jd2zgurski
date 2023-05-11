@@ -1,4 +1,4 @@
-package com.azgurski.controller.rest;
+package com.azgurski.controller.rest.springdata;
 
 import com.azgurski.controller.exceptions.IllegalRequestException;
 import com.azgurski.controller.requests.HibernateRestaurantCreateRequest;
@@ -7,15 +7,13 @@ import com.azgurski.controller.requests.RestaurantSearchCriteria;
 import com.azgurski.domain.AuthenticationInfo;
 import com.azgurski.domain.Capacity;
 import com.azgurski.domain.HibernateRestaurant;
-import com.azgurski.domain.Restaurant;
-import com.azgurski.service.HibernateRestaurantService;
+import com.azgurski.exception.EntityNotFoundException;
+import com.azgurski.repository.springdata.RestaurantDataRepository;
 import com.azgurski.util.RestaurantFieldsGenerator;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Parameter;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -29,39 +27,19 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/rest/hibernate/restaurants")
+@RequestMapping("/rest/springdata/restaurants")
 @RequiredArgsConstructor
-public class HibernateRestaurantController {
-
-    private final HibernateRestaurantService restaurantService;
+public class RestaurantDataController {
+    private final RestaurantDataRepository repository;
 
     private final RestaurantFieldsGenerator generator;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Object> getOneRestaurantById(@PathVariable("id") String id) {
-        HibernateRestaurant restaurant = restaurantService.findOne(Long.parseLong(id));
-        return new ResponseEntity<>(restaurant, HttpStatus.OK);
-    }
-
-
     @GetMapping("/all")
     public ResponseEntity<Object> getAllRestaurants() {
-        List<HibernateRestaurant> restaurants = restaurantService.findAll();
+        List<HibernateRestaurant> restaurants = repository.findAll();
         return new ResponseEntity<>(restaurants, HttpStatus.OK);
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<Object> searchUserByNameCountry(
-            @Valid @ModelAttribute RestaurantSearchCriteria criteria,
-            BindingResult bindingResult) {
-        System.out.println(bindingResult); // TODO throw new
-
-        List<HibernateRestaurant> searchList = restaurantService.searchRestaurant(criteria.getQuery(), criteria.getCountry());
-
-        return new ResponseEntity<>(Collections.singletonMap("restaurants", searchList), HttpStatus.OK);
     }
 
     @PostMapping
@@ -100,11 +78,10 @@ public class HibernateRestaurantController {
 
         restaurant.setAuthenticationInfo(info);
 
-        restaurant = restaurantService.create(restaurant);
+        restaurant = repository.save(restaurant);
         return new ResponseEntity<>(restaurant, HttpStatus.CREATED);
     }
 
-    //можно через @PathVariable + id, либо HRUR по id
     @PutMapping
     public ResponseEntity<Object> updateRestaurant(
             @RequestBody HibernateRestaurantUpdateRequest request) {
@@ -113,7 +90,9 @@ public class HibernateRestaurantController {
         //TODO Spring Converter : request -> entity
         //HibernateRestaurant restaurant = converterService.convert(request, HibernateRestaurant.class);
 
-        HibernateRestaurant one = restaurantService.findOne(request.getRestaurant_id());
+        //TODO FindById возвращает Optional, временное решение ниже
+        HibernateRestaurant one = repository.findById(request.getRestaurant_id())
+                .orElseThrow(EntityNotFoundException::new);
 
         one.setRestaurantId(request.getRestaurant_id());
         one.setName(request.getName());
@@ -132,13 +111,51 @@ public class HibernateRestaurantController {
 //      one.set.passwordUserAuth(generator.generatePassword())
         one.setCapacity(Capacity.valueOf(request.getCapacity()));
 
-        one = restaurantService.update(one);
+        one = repository.save(one);
 
         return new ResponseEntity<>(one, HttpStatus.OK);
     }
 
-    //для @PatchMapping будет не (patchRequest), а Map<String,Object>
-    // мапа будет по ключу, а ключ будет определяться из возможных полей внутри сущности
+    @GetMapping("/search")
+    public ResponseEntity<Object> searchUserByNameCountry(
+            @Valid @ModelAttribute RestaurantSearchCriteria criteria,
+            BindingResult bindingResult) {
+        System.out.println(bindingResult); // TODO throw new
 
+        List<HibernateRestaurant> searchList = Collections.emptyList(); // TODO
+//                repository.searchRestaurant(criteria.getQuery(), criteria.getCountry());
+
+        return new ResponseEntity<>(Collections.singletonMap("restaurants", searchList), HttpStatus.OK);
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<Object> testSpringData() {
+
+        List<HibernateRestaurant> result = repository.findByNameAndCapacity("S'Musauer", Capacity.MIDDLE);
+
+        return new ResponseEntity<>(Collections.singletonMap("result", result), HttpStatus.OK);
+    }
+
+    @GetMapping("/page/{page}")
+    public ResponseEntity<Object> testEndPoint(@PathVariable("page") int page) {
+
+        return new ResponseEntity<>(Collections.singletonMap("result",
+                repository.findAll(PageRequest.of(page, 2))
+                ), HttpStatus.OK);
+
+        // Size приходит из конфигурации, отправляется в application yml, default-page-size и вычитать оттуда
+    }
 
 }
+
+// List<HibernateRestaurant> findByCountryOrderByCountryAsc(String country);
+//
+//    List<HibernateRestaurant> findByNameAndCapacity(String name, Capacity capacity);
+//
+//    @Query("select r from HibernateRestaurant r")
+//    List<HibernateRestaurant> findRestaurants();
+//    List<HibernateRestaurant> result = repository.findRestaurants();
+//
+//    @Query(value = "select r from HibernateRestaurant r where r.country = :country and r.city = :city")
+//    List<HibernateRestaurant> findByHQLQuery(String country, @Param("city") String city);
+//              List<HibernateRestaurant> result = repository.findByHQLQuery("Germany", "Munich");

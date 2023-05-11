@@ -120,6 +120,7 @@ public class BillingDataRestController {
 
 
 
+    //кастомизация errorMessage
     private static StringBuilder getErrorMessageByFields(BindingResult bindingResult) {
         StringBuilder errorMessage = new StringBuilder();
         List<FieldError> errors = bindingResult.getFieldErrors();
