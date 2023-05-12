@@ -1,5 +1,6 @@
 package com.zgurski.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.springframework.cache.annotation.Cacheable;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -25,6 +27,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Set;
 
@@ -41,6 +44,7 @@ import java.util.Set;
         "slots"
 })
 @Entity
+@Cacheable("h_restaurants")
 @Table(name = "h_restaurants")
 public class HibernateRestaurant {
 
@@ -89,16 +93,28 @@ public class HibernateRestaurant {
     @Column
     private String website;
 
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Capacity capacity = Capacity.NOT_SELECTED;
+
+    @Column
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private Timestamp created;
+
+    @Column
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    //TODO LocalDateTime cодержит у себя под капотом timeStamp
+    private Timestamp changed;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "emailUserAuth", column = @Column(name = "email_user_auth")),
             @AttributeOverride(name = "passwordUserAuth", column = @Column(name = "password_user_auth"))
     })
     private AuthenticationInfo authenticationInfo;
-
-    @Column
-    @Enumerated(EnumType.STRING)
-    private Capacity capacity = Capacity.NOT_SELECTED;
 
     @OneToMany(mappedBy = "h_restaurant", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = false)
     @JsonManagedReference

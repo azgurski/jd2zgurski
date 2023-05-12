@@ -1,8 +1,11 @@
 package com.zgurski.service;
 
+import com.zgurski.domain.Capacity;
 import com.zgurski.domain.HibernateRestaurant;
 import com.zgurski.repository.HibernateRestaurantRepository;
+import com.zgurski.repository.springdata.RestaurantDataRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +16,8 @@ public class HibernateRestaurantServiceImpl implements HibernateRestaurantServic
 
     private final HibernateRestaurantRepository repository;
 
+    private final RestaurantDataRepository restaurantDataRepository;
+
     @Override
     public HibernateRestaurant findOne(Long id) {
         return repository.findOne(id);
@@ -21,6 +26,11 @@ public class HibernateRestaurantServiceImpl implements HibernateRestaurantServic
     @Override
     public List<HibernateRestaurant> searchRestaurant(String searchQuery, String searchCountry) {
         return repository.searchRestaurant(searchQuery, searchCountry);
+    }
+
+    @Override
+    public List<HibernateRestaurant> findByCapacity(Capacity capacity) {
+        return restaurantDataRepository.findByCapacity(capacity);
     }
 
 

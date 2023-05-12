@@ -10,6 +10,10 @@ public class RestaurantFieldsGenerator {
         return postcode + "_" + RandomStringUtils.random(10, true, true) + "_user@gmail.com";
     }
 
+    public String generateEmail() {
+        return "test_user_" + RandomStringUtils.random(15, true, true) + "@gmail.com";
+    }
+
     public String generatePassword() {
         return RandomStringUtils.random(20, true, true);
     }

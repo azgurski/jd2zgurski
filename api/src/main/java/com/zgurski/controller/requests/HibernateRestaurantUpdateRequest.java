@@ -13,5 +13,5 @@ import lombok.Setter;
 public class HibernateRestaurantUpdateRequest extends HibernateRestaurantCreateRequest{
 
     private Long restaurant_id;
-    private String capacity;
+
 }

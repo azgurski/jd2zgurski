@@ -2,6 +2,8 @@ package com.zgurski.repository.springdata;
 
 import com.zgurski.domain.Capacity;
 import com.zgurski.domain.HibernateRestaurant;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -23,6 +25,10 @@ public interface RestaurantDataRepository extends JpaRepository<HibernateRestaur
 
     @Query(value = "select r from HibernateRestaurant r where r.country = :country and r.city = :city")
     List<HibernateRestaurant> findByHQLQuery(String country, @Param("city") String city);
+
+    //Cache
+    @Cacheable("h_restaurants")
+    List<HibernateRestaurant> findByCapacity(Capacity capacity);
 }
 
 // For Slot repository Set slot true, но не предпочтительно
