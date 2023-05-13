@@ -24,7 +24,7 @@ public class HibernateRestaurantServiceImpl implements HibernateRestaurantServic
     };
 
     @Override
-    public List<HibernateRestaurant> searchRestaurant(String searchQuery, String searchCountry) {
+    public List<HibernateRestaurant> searchRestaurantByCountry(String searchQuery, String searchCountry) {
         return repository.searchRestaurant(searchQuery, searchCountry);
     }
 

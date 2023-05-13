@@ -3,20 +3,23 @@ package com.zgurski.controller.rest.springdata;
 import com.zgurski.controller.exceptions.IllegalRequestException;
 import com.zgurski.controller.requests.HibernateRestaurantCreateRequest;
 import com.zgurski.controller.requests.HibernateRestaurantUpdateRequest;
-import com.zgurski.controller.requests.RestaurantSearchCriteria;
-import com.zgurski.domain.AuthenticationInfo;
+import com.zgurski.controller.requests.HibernateRestaurantSearchCriteria;
 import com.zgurski.domain.Capacity;
 import com.zgurski.domain.HibernateRestaurant;
 import com.zgurski.exception.EntityNotFoundException;
 import com.zgurski.repository.springdata.RestaurantDataRepository;
-import com.zgurski.util.RestaurantFieldsGenerator;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -30,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -38,18 +40,30 @@ import java.util.Map;
 @RestController
 @RequestMapping("/rest/springdata/restaurants")
 @RequiredArgsConstructor
+@Tag(name = "Restaurant", description = "Restaurant management API")
 public class RestaurantDataController {
     private final RestaurantDataRepository repository;
 
     private final ConversionService conversionService;
 
+//    @Operation(
+//            summary = "Spring Data Restaurants Find All Search",
+//            description = "Find All Restaurants without limitations",
+//            tags = {"all_restaurants", "get"})
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "Successfully loaded Restaurants",
+//                    content = @Content(mediaType = "application/json",
+//                            schema = @Schema(implementation = HibernateRestaurant.class))),
+//            @ApiResponse(responseCode = "404", description = "Entity not found", content = {@Content(mediaType = "application/json", schema = @Schema())}),
+//            @ApiResponse(responseCode = "500", content = {@Content(mediaType = "application/json", schema = @Schema())})})
+    @RestaurantGetAllSwaggerAnnotation
     @GetMapping("/all")
     public ResponseEntity<Object> getAllRestaurants() {
         List<HibernateRestaurant> restaurants = repository.findAll();
         return new ResponseEntity<>(restaurants, HttpStatus.OK);
     }
 
-//    (isolation = Isolation.DEFAULT не прописывается, noRollbackFor = Exception.class убивает консистентность
+    //    (isolation = Isolation.DEFAULT не прописывается, noRollbackFor = Exception.class убивает консистентность
     // Самый простой исправить это — заменить Exception на непроверяемое исключение. Например, NullPointerException, но лучше своё или список исключений. Либо можно переопределить атрибут rollbackFor у аннотации.
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class) //над create, update, delete
     @PostMapping
@@ -81,16 +95,23 @@ public class RestaurantDataController {
         return new ResponseEntity<>(hibernateRestaurant, HttpStatus.OK);
     }
 
+    @RestaurantSearchByCountryAndCapacitySwaggerAnnotation
     @GetMapping("/search")
-    public ResponseEntity<Object> searchUserByNameCountry(
-            @Valid @ModelAttribute RestaurantSearchCriteria criteria,
+    public ResponseEntity<Object> searchRestaurantByCountryAndCapacity(
+            @Parameter(hidden = true)  // чтобы спрятать, в том числе Principal, возле папки, которую не хотим, чтобы попадала в ui
+            @Valid @ModelAttribute HibernateRestaurantSearchCriteria criteria,
             BindingResult bindingResult) {
         System.out.println(bindingResult); // TODO throw new
 
-        List<HibernateRestaurant> searchList = Collections.emptyList(); // TODO
-//                repository.searchRestaurant(criteria.getQuery(), criteria.getCountry());
 
-        return new ResponseEntity<>(Collections.singletonMap("restaurants", searchList), HttpStatus.OK);
+//        List<HibernateRestaurant> searchList = repository.findByCountryAndCapacity(criteria.getCountry(), criteria.getCapacity());
+
+        String resultString = "by country = " + criteria.getCountry() + ", by capacity = " + criteria.getCapacity();
+
+        Map<String, List<HibernateRestaurant>> countryCapacityRestaurants =
+                Collections.singletonMap(resultString, repository.findByCountryAndCapacity(criteria.getCountry(), criteria.getCapacity()));
+
+        return new ResponseEntity<>(Collections.singletonMap("restaurants", countryCapacityRestaurants), HttpStatus.OK);
     }
 
     //Cache
@@ -120,18 +141,35 @@ public class RestaurantDataController {
         return new ResponseEntity<>(Collections.singletonMap("result", result), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Spring Data Restaurants Search With Pageable Params",
+            description = "Load page by number with sort and offset params",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "OK",
+                            description = "Successfully loaded Restaurants",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = PageImpl.class))
+                    )
+            }
+    )
     @GetMapping("/page/{page}")
-    public ResponseEntity<Object> testEndPoint(@PathVariable("page") int page) {
+    public ResponseEntity<Object> testEndPoint(
+            @Parameter(name = "page", example = "1", required = true)
+            @PathVariable("page") int page) {
 
         return new ResponseEntity<>(Collections.singletonMap("result",
                 repository.findAll(PageRequest.of(page, 2))
-                ), HttpStatus.OK);
+        ), HttpStatus.OK);
 
         // Size приходит из конфигурации, отправляется в application yml, default-page-size и вычитать оттуда
     }
 
 
 }
+
+
 
 // List<HibernateRestaurant> findByCountryOrderByCountryAsc(String country);
 //

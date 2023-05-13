@@ -3,7 +3,7 @@ package com.zgurski.controller.rest;
 import com.zgurski.controller.exceptions.IllegalRequestException;
 import com.zgurski.controller.requests.HibernateRestaurantCreateRequest;
 import com.zgurski.controller.requests.HibernateRestaurantUpdateRequest;
-import com.zgurski.controller.requests.RestaurantSearchCriteria;
+import com.zgurski.controller.requests.HibernateRestaurantSearchCriteria;
 import com.zgurski.domain.AuthenticationInfo;
 import com.zgurski.domain.Capacity;
 import com.zgurski.domain.HibernateRestaurant;
@@ -50,11 +50,11 @@ public class HibernateRestaurantController {
 
     @GetMapping("/search")
     public ResponseEntity<Object> searchUserByNameCountry(
-            @Valid @ModelAttribute RestaurantSearchCriteria criteria,
+            @Valid @ModelAttribute HibernateRestaurantSearchCriteria criteria,
             BindingResult bindingResult) {
         System.out.println(bindingResult); // TODO throw new
 
-        List<HibernateRestaurant> searchList = restaurantService.searchRestaurant(criteria.getQuery(), criteria.getCountry());
+        List<HibernateRestaurant> searchList = restaurantService.searchRestaurantByCountry(criteria.getQuery(), criteria.getCountry());
 
         return new ResponseEntity<>(Collections.singletonMap("restaurants", searchList), HttpStatus.OK);
     }
@@ -125,7 +125,8 @@ public class HibernateRestaurantController {
         one.setWebsite(request.getWebsite());
 //      one.set.emailUserAuth(generator.generateEmail(request.getPostcode()))
 //      one.set.passwordUserAuth(generator.generatePassword())
-        one.setCapacity(Capacity.valueOf(request.getCapacity()));
+//        one.setCapacity(Capacity.valueOf(request.getCapacity()));
+        one.setCapacity(request.getCapacity());
 
         one = restaurantService.update(one);
 
