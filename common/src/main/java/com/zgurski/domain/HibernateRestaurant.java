@@ -1,6 +1,8 @@
 package com.zgurski.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +27,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.sql.Timestamp;
@@ -38,10 +41,10 @@ import java.util.Set;
 @Getter
 @Builder
 @EqualsAndHashCode(exclude = {
-        "slots"
+        "slots", "h_roles"
 })
 @ToString(exclude = {
-        "slots"
+        "slots", "h_roles"
 })
 @Entity
 @Cacheable("h_restaurants")
@@ -87,9 +90,6 @@ public class HibernateRestaurant {
     @Column(name = "image_url")
     private String imageURL;
 
-    @Column(name = "role_id")
-    private Long roleId;
-
     @Column
     private String website;
 
@@ -98,11 +98,11 @@ public class HibernateRestaurant {
     private Capacity capacity = Capacity.NOT_SELECTED;
 
     @Column
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp created;
 
     @Column
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     //TODO LocalDateTime cодержит у себя под капотом timeStamp
     private Timestamp changed;
 
@@ -118,8 +118,15 @@ public class HibernateRestaurant {
 
     @OneToMany(mappedBy = "h_restaurant", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = false)
     @JsonManagedReference
+    @JsonIgnoreProperties("h_restaurant")
     private Set<HibernateSlot> slots = Collections.emptySet();
 
+    @ManyToMany(mappedBy = "hibernateRestaurants", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("hibernateRestaurants")
+//    @JsonIgnore
+    private Set<Role> roles = Collections.emptySet();
+
+//
 //    @OneToMany(mappedBy = "h_restaurant") // restaurant - поле из класса Billing data
 //    @JsonManagedReference
 //    private List<BillingData> billingData = Collections.emptyList();

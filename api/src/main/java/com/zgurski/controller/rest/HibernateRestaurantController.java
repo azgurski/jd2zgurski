@@ -81,7 +81,6 @@ public class HibernateRestaurantController {
                 .longitude(request.getLongitude())
                 .latitude(request.getLatitude())
                 .imageURL(request.getImage_URL())
-                .roleId(Long.parseLong(request.getRole_id()))
                 .website(request.getWebsite())
 //                .emailUserAuth(generator.generateEmail(request.getPostcode()))
 //                .passwordUserAuth(generator.generatePassword())
@@ -121,7 +120,6 @@ public class HibernateRestaurantController {
         one.setLongitude(request.getLongitude());
         one.setLatitude(request.getLatitude());
         one.setImageURL(request.getImage_URL());
-        one.setRoleId(Long.parseLong(request.getRole_id()));
         one.setWebsite(request.getWebsite());
 //      one.set.emailUserAuth(generator.generateEmail(request.getPostcode()))
 //      one.set.passwordUserAuth(generator.generatePassword())

@@ -5,6 +5,7 @@ import com.zgurski.domain.AuthenticationInfo;
 import com.zgurski.domain.HibernateRestaurant;
 import com.zgurski.util.RestaurantFieldsGenerator;
 import lombok.RequiredArgsConstructor;
+//import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -14,6 +15,8 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class RestaurantCreateConverter extends
         RestaurantBaseConverter<HibernateRestaurantCreateRequest, HibernateRestaurant> {
+
+//    private final PasswordEncoder encoder;
 
     private final RestaurantFieldsGenerator generator;
 

@@ -38,3 +38,23 @@ spring:
       hibernate:
         current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
         format_sql: true
+
+  data:
+    rest:
+      default-page-size: 20
+
+---
+
+
+#---
+#
+#jwtconfig:
+#  secret: secret
+#  expiration: 60000
+#  cookieName: tableplan
+#  expirationMs: 86400000
+#  passwordSalt: 142ddefd-5029-4088-90a8-e7bc78d1e0d6
+#
+#---
+
+

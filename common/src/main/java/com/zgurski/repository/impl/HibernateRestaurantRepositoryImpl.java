@@ -2,6 +2,7 @@ package com.zgurski.repository.impl;
 
 import com.zgurski.domain.HibernateRestaurant;
 import com.zgurski.domain.HibernateRestaurant_;
+import com.zgurski.domain.Role;
 import com.zgurski.repository.HibernateRestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -161,4 +162,5 @@ public class HibernateRestaurantRepositoryImpl implements HibernateRestaurantRep
 
         return resultQuery.getResultList();
     }
+
 }

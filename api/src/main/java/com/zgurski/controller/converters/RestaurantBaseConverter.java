@@ -25,7 +25,6 @@ public abstract class RestaurantBaseConverter<S, T> implements Converter<S, T> {
         restaurantForUpdate.setLongitude(request.getLongitude());
         restaurantForUpdate.setLatitude(request.getLatitude());
         restaurantForUpdate.setImageURL(request.getImage_URL());
-        restaurantForUpdate.setRoleId(Long.parseLong(request.getRole_id()));
         restaurantForUpdate.setCapacity(request.getCapacity());
 //        restaurantForUpdate.setCapacity(Capacity.valueOf(request.getCapacity().toUpperCase()));
         restaurantForUpdate.setWebsite(request.getWebsite());

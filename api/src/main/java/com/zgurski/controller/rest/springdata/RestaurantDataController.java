@@ -1,13 +1,16 @@
 package com.zgurski.controller.rest.springdata;
 
 import com.zgurski.controller.exceptions.IllegalRequestException;
+import com.zgurski.controller.hateoas.RestaurantModelAssembler;
 import com.zgurski.controller.requests.HibernateRestaurantCreateRequest;
 import com.zgurski.controller.requests.HibernateRestaurantUpdateRequest;
 import com.zgurski.controller.requests.HibernateRestaurantSearchCriteria;
 import com.zgurski.domain.Capacity;
 import com.zgurski.domain.HibernateRestaurant;
 import com.zgurski.exception.EntityNotFoundException;
+import com.zgurski.repository.HibernateRestaurantRepository;
 import com.zgurski.repository.springdata.RestaurantDataRepository;
+import com.zgurski.repository.springdata.RoleDataRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,9 +18,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Propagation;
@@ -32,10 +38,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+
 
 @RestController
 @RequestMapping("/rest/springdata/restaurants")
@@ -44,24 +59,42 @@ import java.util.Map;
 public class RestaurantDataController {
     private final RestaurantDataRepository repository;
 
+    private final HibernateRestaurantRepository hibernateRestaurantRepository;
+
+    private final RoleDataRepository roleDataRepository;
+
     private final ConversionService conversionService;
 
-//    @Operation(
-//            summary = "Spring Data Restaurants Find All Search",
-//            description = "Find All Restaurants without limitations",
-//            tags = {"all_restaurants", "get"})
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "Successfully loaded Restaurants",
-//                    content = @Content(mediaType = "application/json",
-//                            schema = @Schema(implementation = HibernateRestaurant.class))),
-//            @ApiResponse(responseCode = "404", description = "Entity not found", content = {@Content(mediaType = "application/json", schema = @Schema())}),
-//            @ApiResponse(responseCode = "500", content = {@Content(mediaType = "application/json", schema = @Schema())})})
-    @RestaurantGetAllSwaggerAnnotation
+    private final RestaurantModelAssembler assembler;
+
+    @Value("${spring.data.rest.default-page-size}")
+    private int size;
+
+    @RestaurantGetAllSwagger
     @GetMapping("/all")
     public ResponseEntity<Object> getAllRestaurants() {
         List<HibernateRestaurant> restaurants = repository.findAll();
         return new ResponseEntity<>(restaurants, HttpStatus.OK);
     }
+
+    @RestaurantGetAllSwagger
+    @GetMapping("/hateoas/all")
+    public CollectionModel<EntityModel<HibernateRestaurant>> getAllHateoasRestaurants() {
+
+        List<EntityModel<HibernateRestaurant>> restaurants = repository.findAll().stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        return CollectionModel.of(restaurants, linkTo(methodOn(RestaurantDataController.class)).withSelfRel());
+    }
+
+    @RestaurantSearchByIdSwagger
+    @GetMapping("/hateoas/{id}")
+    public EntityModel<HibernateRestaurant> getRestaurantById(@PathVariable("id") long id) {
+        return assembler.toModel(hibernateRestaurantRepository.findOne(id));
+    }
+
+
 
     //    (isolation = Isolation.DEFAULT не прописывается, noRollbackFor = Exception.class убивает консистентность
     // Самый простой исправить это — заменить Exception на непроверяемое исключение. Например, NullPointerException, но лучше своё или список исключений. Либо можно переопределить атрибут rollbackFor у аннотации.
@@ -95,10 +128,11 @@ public class RestaurantDataController {
         return new ResponseEntity<>(hibernateRestaurant, HttpStatus.OK);
     }
 
-    @RestaurantSearchByCountryAndCapacitySwaggerAnnotation
+    @RestaurantSearchByCountryAndCapacitySwagger
     @GetMapping("/search")
     public ResponseEntity<Object> searchRestaurantByCountryAndCapacity(
-            @Parameter(hidden = true)  // чтобы спрятать, в том числе Principal, возле папки, которую не хотим, чтобы попадала в ui
+            @Parameter(hidden = true)
+            // чтобы спрятать, в том числе Principal, возле папки, которую не хотим, чтобы попадала в ui
             @Valid @ModelAttribute HibernateRestaurantSearchCriteria criteria,
             BindingResult bindingResult) {
         System.out.println(bindingResult); // TODO throw new
@@ -160,25 +194,10 @@ public class RestaurantDataController {
             @PathVariable("page") int page) {
 
         return new ResponseEntity<>(Collections.singletonMap("result",
-                repository.findAll(PageRequest.of(page, 2))
+                repository.findAll(PageRequest.of(page, size))
         ), HttpStatus.OK);
-
-        // Size приходит из конфигурации, отправляется в application yml, default-page-size и вычитать оттуда
     }
 
 
 }
 
-
-
-// List<HibernateRestaurant> findByCountryOrderByCountryAsc(String country);
-//
-//    List<HibernateRestaurant> findByNameAndCapacity(String name, Capacity capacity);
-//
-//    @Query("select r from HibernateRestaurant r")
-//    List<HibernateRestaurant> findRestaurants();
-//    List<HibernateRestaurant> result = repository.findRestaurants();
-//
-//    @Query(value = "select r from HibernateRestaurant r where r.country = :country and r.city = :city")
-//    List<HibernateRestaurant> findByHQLQuery(String country, @Param("city") String city);
-//              List<HibernateRestaurant> result = repository.findByHQLQuery("Germany", "Munich");

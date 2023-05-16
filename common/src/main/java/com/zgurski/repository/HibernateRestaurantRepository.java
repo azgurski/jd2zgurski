@@ -1,6 +1,7 @@
 package com.zgurski.repository;
 
 import com.zgurski.domain.HibernateRestaurant;
+import com.zgurski.domain.Role;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,4 +20,5 @@ public interface HibernateRestaurantRepository extends CRUDRepository<Long, Hibe
     HibernateRestaurant update(HibernateRestaurant object);
 
     HibernateRestaurant findOne(Long id);
+
 }

@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Operation(
         summary = "Spring Data Restaurants Find All Search",
         description = "Find All Restaurants without limitations",
-        tags = {"all_restaurants", "get"})
+        tags = {"hateoas", "get"})
 @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Successfully loaded Restaurants",
                 content = @Content(mediaType = "application/json",
@@ -27,5 +27,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-public @interface RestaurantGetAllSwaggerAnnotation {
+public @interface RestaurantGetAllSwagger {
 }
